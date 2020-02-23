@@ -1,0 +1,1 @@
+dapr run --port 3500 --app-id eventproducer dotnet run
