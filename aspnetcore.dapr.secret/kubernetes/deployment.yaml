@@ -1,0 +1,43 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: aspnetcoresecrets
+  labels:
+    app: node
+spec:
+  selector:
+    app: node
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aspnetcoresecrets
+  labels:
+    app: node
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: node
+  template:
+    metadata:
+      labels:
+        app: node
+        aadpodidbinding: requires-vault
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/id: "aspnetcoresecrets"
+        dapr.io/port: "80"
+    spec:
+      containers:
+        - name: node
+          image: cmendibl3/aspnetcoresecrets:latest
+          ports:
+            - containerPort: 80
+          imagePullPolicy: Always
