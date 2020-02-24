@@ -61,15 +61,12 @@ namespace DaprIntro
 
             async Task Readings(HttpContext context)
             {
-                var message = await JsonSerializer.DeserializeAsync<dynamic>(context.Request.Body, serializerOptions);
-                if (string.IsNullOrEmpty(message))
-                {
-                    message = "nil";
-                }
-                Console.WriteLine(message.ToString());
+                var reading = await JsonSerializer.DeserializeAsync<dynamic>(context.Request.Body, serializerOptions);
+
+                Console.WriteLine(reading.Data.Temperature);
 
                 context.Response.ContentType = "application/json";
-                await JsonSerializer.SerializeAsync(context.Response.Body, message.ToString(), serializerOptions);
+                await JsonSerializer.SerializeAsync(context.Response.Body, string.Empty, serializerOptions);
             }
         }
     }
