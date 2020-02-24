@@ -1,0 +1,1 @@
+dapr run --port 3500 --app-port 5000 --app-id eventconsumer dotnet run

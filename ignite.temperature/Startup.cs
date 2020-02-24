@@ -1,9 +1,15 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System;
+using System.IO;
+using System.Net.Http;
+using System.Text.Json;
+using System.Threading.Tasks;
+using Dapr;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Temperature.Infrastructure;
 
 namespace Temperature
@@ -27,6 +33,16 @@ namespace Temperature
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            services.AddDaprClient();
+
+            services.AddHttpClient();
+
+            services.AddSingleton(new JsonSerializerOptions()
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                PropertyNameCaseInsensitive = true,
+            });
+
             services.AddOptions();
             services.AddCors();
             services.AddMvc();
@@ -37,7 +53,7 @@ namespace Temperature
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, JsonSerializerOptions serializerOptions, IHttpClientFactory clientFactory, TemperatureHub temperatureHub)
         {
             if (env.IsDevelopment())
             {
@@ -57,7 +73,7 @@ namespace Temperature
                .AllowAnyHeader()
                .AllowAnyMethod());
 
-            app.UseHttpsRedirection();
+            // app.UseHttpsRedirection();
 
             app.UseStaticFiles();
 
@@ -68,7 +84,26 @@ namespace Temperature
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+                endpoints.MapSubscribeHandler();
+
+                endpoints.MapPost("readings-input", Readings).WithTopic("readings");
             });
+
+            async Task Readings(HttpContext context)
+            {
+                var tempReading = await JsonSerializer.DeserializeAsync<dynamic>(context.Request.Body, serializerOptions);
+                var reading = new
+                {
+                    Date = DateTime.Now,
+                    Temperature = tempReading.Data.Temperature
+                };
+
+                await temperatureHub.SendMessage(JsonSerializer.Serialize(reading));
+
+                context.Response.ContentType = "application/json";
+                await JsonSerializer.SerializeAsync(context.Response.Body, string.Empty, serializerOptions);
+            }
         }
     }
 }
