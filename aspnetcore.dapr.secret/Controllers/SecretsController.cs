@@ -33,7 +33,7 @@ namespace aspnetcore.dapr.secret.Controllers
             return new StatusCodeResult(StatusCodes.Status500InternalServerError);
         }
 
-        [HttpGet("/GetK8sSecret")]
+        [HttpGet("GetK8sSecret")]
         public async Task<ActionResult<string>> GetK8sSecret()
         {
             var result = await _httpClient.GetAsync("http://localhost:3500/v1.0/secrets/kubernetes/redis?metadata.namespace=dapr-tests");
