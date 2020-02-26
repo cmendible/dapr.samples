@@ -92,11 +92,11 @@ namespace Temperature
 
             async Task Readings(HttpContext context)
             {
-                var tempReading = await JsonSerializer.DeserializeAsync<dynamic>(context.Request.Body, serializerOptions);
+                var tempReading = await JsonSerializer.DeserializeAsync<Reading>(context.Request.Body, serializerOptions);
                 var reading = new
                 {
                     Date = DateTime.Now,
-                    Temperature = tempReading.Data.Temperature
+                    Temperature = tempReading.Temperature
                 };
 
                 await temperatureHub.SendMessage(JsonSerializer.Serialize(reading));
@@ -105,5 +105,10 @@ namespace Temperature
                 await JsonSerializer.SerializeAsync(context.Response.Body, string.Empty, serializerOptions);
             }
         }
+    }
+
+    class Reading
+    {
+        public double Temperature { get; set; }
     }
 }
