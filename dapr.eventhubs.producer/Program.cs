@@ -32,6 +32,8 @@ namespace aspnetcore.dapr.secret
                     "http://localhost:3501/v1.0/bindings/readings-output",
                     new StringContent(JsonSerializer.Serialize(reading, options), Encoding.UTF8, "application/json")
                 );
+
+                await Task.Delay(500);
             }
 
         }
