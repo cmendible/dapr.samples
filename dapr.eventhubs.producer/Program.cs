@@ -20,6 +20,8 @@ namespace aspnetcore.dapr.secret
                 PropertyNameCaseInsensitive = true,
             };
 
+            var DAPR_HTTP_PORT = Environment.GetEnvironmentVariable("DAPR_HTTP_PORT");
+
             var rnd = new Random();
             for (var i = 0; i < 1000; i++)
             {
@@ -29,7 +31,7 @@ namespace aspnetcore.dapr.secret
                 };
 
                 await client.PostAsync(
-                    "http://localhost:3501/v1.0/bindings/readings-output",
+                    $"http://localhost:{DAPR_HTTP_PORT}/v1.0/bindings/readings-output",
                     new StringContent(JsonSerializer.Serialize(reading, options), Encoding.UTF8, "application/json")
                 );
 
