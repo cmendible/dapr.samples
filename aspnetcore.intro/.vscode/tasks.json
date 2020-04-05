@@ -39,30 +39,16 @@
             "problemMatcher": "$msCompile"
         },
         {
-            "label": "daprd-dapr.intro",
-            "command": "daprd",
-            "args": [
-                "-dapr-id",
-                "routing",
-                "-app-port",
-                "5000"
-            ],
-            "isBackground": true,
-            "problemMatcher": {
-                "pattern": [
-                    {
-                        "regexp": ".",
-                        "file": 1,
-                        "location": 2,
-                        "message": 3
-                    }
-                ],
-                "background": {
-                    "beginsPattern": "^.*starting Dapr Runtime.*",
-                    "endsPattern": "^.*waiting on port.*"
-                }
-            },
+            "appId": "state-test",
+            "appPort": 5000,
+            "label": "daprd-debug",
+            "type": "daprd",
             "dependsOn": "build"
+        },
+        {
+            "appId": "state-test",
+            "label": "daprd-down",
+            "type": "daprd-down"
         }
     ]
 }
