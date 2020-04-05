@@ -35,8 +35,6 @@ namespace Temperature
 
             services.AddDaprClient();
 
-            services.AddHttpClient();
-
             services.AddSingleton(new JsonSerializerOptions()
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -53,7 +51,7 @@ namespace Temperature
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, JsonSerializerOptions serializerOptions, IHttpClientFactory clientFactory, TemperatureHub temperatureHub)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, JsonSerializerOptions serializerOptions, TemperatureHub temperatureHub)
         {
             if (env.IsDevelopment())
             {

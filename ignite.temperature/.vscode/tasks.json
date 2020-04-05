@@ -39,16 +39,16 @@
             "problemMatcher": "$msCompile"
         },
         {
-            "type": "daprd",
-            "label": "daprd-debug",
-            "appId": "eventconsumer",
+            "appId": "secrets",
             "appPort": 5000,
+            "label": "daprd-debug",
+            "type": "daprd",
             "dependsOn": "build"
         },
         {
-            "type": "daprd-down",
+            "appId": "secrets",
             "label": "daprd-down",
-            "appId": "eventconsumer"
+            "type": "daprd-down"
         }
     ]
 }
