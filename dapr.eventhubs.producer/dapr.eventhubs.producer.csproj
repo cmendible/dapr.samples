@@ -5,9 +5,4 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Dapr.AspNetCore" Version="0.4.0-preview01" />
-    <PackageReference Include="Dapr.Client" Version="0.4.0-preview01" />
-  </ItemGroup>
-
 </Project>
