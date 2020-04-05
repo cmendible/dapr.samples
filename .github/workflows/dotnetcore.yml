@@ -7,6 +7,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v1
       - name: Setup .NET Core 3.1.101
         uses: actions/setup-dotnet@v1
         with:
