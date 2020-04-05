@@ -31,8 +31,6 @@ namespace DaprIntro
         {
             services.AddDaprClient();
 
-            services.AddHttpClient();
-
             services.AddSingleton(new JsonSerializerOptions()
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -41,7 +39,7 @@ namespace DaprIntro
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, JsonSerializerOptions serializerOptions, IHttpClientFactory clientFactory)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, JsonSerializerOptions serializerOptions)
         {
             if (env.IsDevelopment())
             {
