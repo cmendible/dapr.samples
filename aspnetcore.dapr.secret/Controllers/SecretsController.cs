@@ -36,7 +36,7 @@ namespace aspnetcore.dapr.secret.Controllers
         [HttpGet("GetK8sSecret")]
         public async Task<ActionResult<string>> GetK8sSecret()
         {
-            var result = await _httpClient.GetAsync("http://localhost:3500/v1.0/secrets/kubernetes/redis?metadata.namespace=dapr-tests");
+            var result = await _httpClient.GetAsync("http://localhost:3500/v1.0/secrets/kubernetes/redis?metadata.namespace=dapr-test");
             if (result.IsSuccessStatusCode)
             {
                 return await result.Content.ReadAsStringAsync();

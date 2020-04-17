@@ -3,10 +3,10 @@ apiVersion: v1
 metadata:
   name: aspnetcoresecrets
   labels:
-    app: node
+    app: aspnetcoresecrets
 spec:
   selector:
-    app: node
+    app: aspnetcoresecrets
   ports:
     - protocol: TCP
       port: 80
@@ -19,24 +19,24 @@ kind: Deployment
 metadata:
   name: aspnetcoresecrets
   labels:
-    app: node
+    app: aspnetcoresecrets
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: node
+      app: aspnetcoresecrets
   template:
     metadata:
       labels:
-        app: node
-        aadpodidbinding: requires-vault
+        app: aspnetcoresecrets
+        aadpodidbinding: reads-vault
       annotations:
         dapr.io/enabled: "true"
-        dapr.io/id: "aspnetcoresecrets"
+        dapr.io/id: aspnetcoresecrets
         dapr.io/port: "80"
     spec:
       containers:
-        - name: node
+        - name: aspnetcoresecrets
           image: cmendibl3/aspnetcoresecrets:latest
           ports:
             - containerPort: 80
