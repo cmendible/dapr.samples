@@ -1,6 +1,6 @@
 ## RUN:
 
-dapr run --app-id test-state --app-port 5000 dotnet run
+dapr run --app-id test-state --app-port 5000 --grpc-port 50001 dotnet run
 
 ## REST:
 curl -X POST http://127.0.0.1:5000/deposit -H 'Content-Type: application/json' -d '{ "id": "17", "amount": 12 }'
