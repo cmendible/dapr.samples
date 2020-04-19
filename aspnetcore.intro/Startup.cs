@@ -1,8 +1,5 @@
-using System;
-using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Dapr;
 using Dapr.Client;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -40,7 +37,7 @@ namespace DaprIntro
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, JsonSerializerOptions serializerOptions, IHttpClientFactory clientFactory)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, JsonSerializerOptions serializerOptions)
         {
             if (env.IsDevelopment())
             {
@@ -59,8 +56,6 @@ namespace DaprIntro
                 endpoints.MapPost("deposit", Deposit).WithTopic("deposit");
                 endpoints.MapPost("withdraw", Withdraw).WithTopic("withdraw");
             });
-
-            Console.WriteLine(Configuration.GetValue<string>("DAPR_HTTP_PORT"));
 
             async Task Balance(HttpContext context)
             {
