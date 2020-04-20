@@ -39,14 +39,14 @@
             "problemMatcher": "$msCompile"
         },
         {
-            "appId": "state-test",
+            "appId": "test-state",
             "appPort": 5000,
             "label": "daprd-debug",
             "type": "daprd",
             "dependsOn": "build"
         },
         {
-            "appId": "state-test",
+            "appId": "test-state",
             "label": "daprd-down",
             "type": "daprd-down"
         }
