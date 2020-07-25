@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-
-namespace aspnetcore.dapr.secret.Controllers
+﻿namespace aspnetcore.dapr.secret.Controllers
 {
+    using System.Net.Http;
+    using System.Threading.Tasks;
+    using Dapr.Client;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Extensions.Logging;
+
     [ApiController]
     [Route("[controller]")]
     public class SecretsController : ControllerBase
@@ -23,14 +21,10 @@ namespace aspnetcore.dapr.secret.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<string>> Get()
+        public async Task<ActionResult<string>> Get([FromServices] DaprClient client)
         {
-            var result = await _httpClient.GetAsync("http://localhost:3500/v1.0/secrets/azurekeyvault/redis");
-            if (result.IsSuccessStatusCode)
-            {
-                return await result.Content.ReadAsStringAsync();
-            }
-            return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            var result = await client.GetSecretAsync("demosecrets", "redisPass");
+            return result["redisPass"];
         }
 
         [HttpGet("GetK8sSecret")]

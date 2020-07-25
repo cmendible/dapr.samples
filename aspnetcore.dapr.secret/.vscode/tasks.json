@@ -37,6 +37,19 @@
                 "/consoleloggerparameters:NoSummary"
             ],
             "problemMatcher": "$msCompile"
+        },
+        {
+            "appId": "secrets",
+            "appPort": 5000,
+            "label": "daprd-debug",
+            "type": "daprd",
+            "dependsOn": "build",
+            "componentsPath": "../components"
+        },
+        {
+            "appId": "secrets",
+            "label": "daprd-down",
+            "type": "daprd-down"
         }
     ]
 }

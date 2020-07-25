@@ -248,3 +248,7 @@ BenchmarkDotNet.Artifacts
 
 # pem files
 *.pem
+
+# terraform
+.terraform/
+**/*.tfstate*
