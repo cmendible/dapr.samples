@@ -43,7 +43,8 @@
             "appPort": 5000,
             "label": "daprd-debug",
             "type": "daprd",
-            "dependsOn": "build"
+            "dependsOn": "build",
+            "componentsPath": "./components"
         },
         {
             "appId": "test-state",
