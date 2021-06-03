@@ -1,0 +1,46 @@
+---
+# Worker Application
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minecraft-bot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: minecraft-bot
+  template:
+    metadata:
+      labels:
+        app: minecraft-bot
+        aadpodidbinding: dapr
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "minecraft-bot"
+        dapr.io/app-port: "8080"
+        dapr.io/config: "tracing"
+    spec:
+      containers:
+        - name: minecraft-bot
+          image: cmendibl3/minecraft-bot
+          ports:
+            - name: viewer
+              containerPort: 8181
+          imagePullPolicy: "Always"
+          env:
+            - name: "MINECRAFT_HOST"
+              value: "mc"
+            - name: "MINECRAFT_BOT_NAME"
+              value: "vicky"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: minecraft-bot
+spec:
+  type: LoadBalancer
+  ports:
+    - name: viewer
+      port: 8181
+  selector:
+    app: minecraft-bot

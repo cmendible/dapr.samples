@@ -1,0 +1,42 @@
+---
+# Worker Application
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: twitter-sentiment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: twitter-sentiment
+  template:
+    metadata:
+      labels:
+        app: twitter-sentiment
+        aadpodidbinding: dapr
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "twitter-sentiment"
+        dapr.io/app-port: "80"
+        dapr.io/config: "tracing"
+    spec:
+      containers:
+        - name: twitter-sentiment
+          image: cmendibl3/dapr-twitter-sentiment
+          ports:
+            - name: http
+              containerPort: 80
+          imagePullPolicy: "Always"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: twitter-sentiment
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 80
+  selector:
+    app: twitter-sentiment

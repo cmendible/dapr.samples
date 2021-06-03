@@ -1,0 +1,28 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: tweets
+spec:
+  type: bindings.twitter
+  version: v1
+  metadata:
+    - name: consumerKey
+      secretKeyRef:
+        key: consumerKey
+        name: consumerKey
+    - name: consumerSecret
+      secretKeyRef:
+        key: consumerSecret
+        name: consumerSecret
+    - name: accessToken
+      secretKeyRef:
+        key: accessToken
+        name: accessToken
+    - name: accessSecret
+      secretKeyRef:
+        key: accessSecret
+        name: accessSecret
+    - name: query
+      value: "covid19" # your search query, required
+auth:
+  secretStore: secrets

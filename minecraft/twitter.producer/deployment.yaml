@@ -1,0 +1,26 @@
+---
+# Worker Application
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: twitter-producer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: twitter-producer
+  template:
+    metadata:
+      labels:
+        app: twitter-producer
+        aadpodidbinding: dapr
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "twitter-producer"
+        dapr.io/app-port: "80"
+        dapr.io/config: "tracing"
+    spec:
+      containers:
+        - name: twitter-producer
+          image: cmendibl3/dapr-twitter-producer
+          imagePullPolicy: "Always"

@@ -1,0 +1,44 @@
+---
+# Worker Application
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mc
+  template:
+    metadata:
+      labels:
+        app: mc
+    spec:
+      containers:
+        - name: mc
+          image: itzg/minecraft-server
+          ports:
+            - name: mc-port
+              containerPort: 25565
+          imagePullPolicy: "IfNotPresent"
+          env:
+            - name: "EULA"
+              value: "TRUE"
+            - name: "ONLINE_MODE"
+              value: "FALSE"
+            - name: "OPS"
+              value: "vicky"
+            - name: "SPAWN_MONSTERS"
+              value: "FALSE"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mc
+spec:
+  type: LoadBalancer
+  ports:
+    - name: mc-port
+      port: 25565
+  selector:
+    app: mc

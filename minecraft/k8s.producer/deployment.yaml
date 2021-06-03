@@ -1,0 +1,26 @@
+---
+# Worker Application
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-producer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: k8s-producer
+  template:
+    metadata:
+      labels:
+        app: k8s-producer
+        aadpodidbinding: dapr
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "k8s-producer"
+        dapr.io/app-port: "80"
+        dapr.io/config: "tracing"
+    spec:
+      containers:
+        - name: k8s-producer
+          image: cmendibl3/dapr-k8s-producer
+          imagePullPolicy: "Always"

@@ -1,0 +1,12 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: kubernetes-reader
+spec:
+  type: bindings.kubernetes
+  version: v1
+  metadata:
+  - name: namespace
+    value: matrix
+  - name: resyncPeriodInSec
+    value: "15"
