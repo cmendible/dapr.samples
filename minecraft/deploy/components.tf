@@ -43,3 +43,13 @@ resource "null_resource" "twitter" {
   ]
 }
 
+resource "null_resource" "state" {
+  provisioner "local-exec" {
+    interpreter = ["PowerShell", "-Command"]
+    command = "kubectl apply -f ./components/state.yaml"
+  }
+
+  depends_on = [
+    helm_release.aad-pod-identity
+  ]
+}
