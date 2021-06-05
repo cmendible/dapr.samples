@@ -117,7 +117,7 @@ app.post('/k8sevents', (req, res) => {
         let message = req.body.data;
         console.log(`k8s: ${message}`);
 
-        bot.chat(`k8s: ${message}`);Ñ
+        bot.chat(`k8s: ${message}`);
         res.sendStatus(200);
     }
     catch (e) {
