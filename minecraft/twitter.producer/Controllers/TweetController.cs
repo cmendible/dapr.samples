@@ -21,6 +21,8 @@ namespace twitter.producer.Controllers
         [HttpPost("/tweets")]
         public async Task<ActionResult> Post([FromBody] TwitterQueryResponse tweet, [FromServices] DaprClient client)
         {
+            await client.SaveStateAsync("statedb", tweet.IdStr, tweet);
+
             var content = tweet.FullText;
             if (content == "")
             {
