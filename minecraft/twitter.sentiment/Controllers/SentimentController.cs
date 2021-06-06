@@ -22,7 +22,7 @@ namespace twitter.sentiment.Controllers
         }
 
         [HttpPost]
-        public async Task<double?> Post([FromBody] string content, [FromServices] DaprClient client)
+        public async Task<double?> Post([FromBody] string content)
         {
             var credentials = new ApiKeyServiceClientCredentials(_configuration["cognitiveServicesKey"]);
             var textAnalyticsClient = new TextAnalyticsClient(credentials)
