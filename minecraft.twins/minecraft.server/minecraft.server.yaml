@@ -1,0 +1,285 @@
+apiVersion: v1
+data:
+  setup.sh: |-
+    #!/bin/sh
+
+    # https://github.com/ediloren/ScriptCraft
+     
+  ops-fix.sh: |-
+    #!/bin/sh
+
+    while  [ ! -f  "/data/scriptcraft/plugins/spawn.js" ]; do 
+      sleep 1 # wait 2 for scriptcraft to be unzipped
+    done
+
+    cp /setup/netcoreconf.js /data/scriptcraft/plugins/netcoreconf.js
+
+    while  [ ! -f  "/data/scriptcraft/modules/http/request.js" ]; do 
+      sleep 1 # wait 2 for scriptcraft to be unzipped
+    done
+
+    cp /setup/request.js /data/scriptcraft/modules/http/request.js
+
+    while  [ ! -f  "/data/scriptcraft/plugins/spawn.js" ]; do 
+      sleep 1 # wait 2 for scriptcraft to be unzipped
+    done
+
+    cp /setup/setsigntext.js /data/scriptcraft/plugins/setsigntext.js
+
+    apt-get update
+    apt-get install netcat -y
+
+    while ! nc -z localhost 25575; do   
+      sleep 5 # wait 5 seconds for rcon
+    done
+
+    /mcrcon/mcrcon-0.7.1-linux-x86-64/mcrcon -p rcon231418. "op cmendibl3" "op lordvanmanu"
+
+    while true; do sleep 3600; done
+  request.js: |-
+    /*global exports, encodeURIComponent, server, __plugin, setTimeout*/
+    function paramsToString(params) {
+      var result = '',
+        paramNames = [],
+        i;
+      for (i in params) {
+        paramNames.push(i);
+      }
+      for (i = 0; i < paramNames.length; i++) {
+        result += paramNames[i] + '=' + encodeURIComponent(params[paramNames[i]]);
+        if (i < paramNames.length - 1) result += '&';
+      }
+      return result;
+    }
+    function invokeNow(fn) {
+      fn();
+      return;
+    }
+    function invokeLater(fn) {
+      setTimeout(fn, 20);
+      return;
+    }
+    exports.request = function(request, callback) {
+      invokeLater(function() {
+        var url, paramsAsString, conn, requestMethod;
+        if (typeof request === 'string') {
+          url = request;
+          requestMethod = 'GET';
+        } else {
+          url = request.url;
+          paramsAsString = paramsToString(request.params);
+          if (request.method) {
+            requestMethod = request.method;
+          } else {
+            requestMethod = 'GET';
+          }
+          if (requestMethod == 'GET' && request.params) {
+            // append each parameter to the URL
+            url = request.url + '?' + paramsAsString;
+          }
+        }
+        conn = new java.net.URL(url).openConnection();
+        conn.requestMethod = requestMethod;
+        conn.doOutput = true;
+        conn.instanceFollowRedirects = false;
+
+        if (conn.requestMethod == 'POST') {
+          conn.doInput = true;
+          // put each parameter in the outputstream
+          conn.setRequestProperty(
+            'Content-Type',
+            'application/x-www-form-urlencoded'
+          );
+          conn.setRequestProperty('charset', 'utf-8');
+          conn.setRequestProperty('Content-Length', '' + paramsAsString.length);
+          conn.useCaches = false;
+          var wr = new java.io.DataOutputStream(conn.getOutputStream());
+          wr.writeBytes(paramsAsString);
+          wr.flush();
+          wr.close();
+        }
+        var rc = conn.responseCode;
+        var response;
+        var stream;
+        if (rc == 200) {
+          stream = conn.getInputStream();
+          response = new java.util.Scanner(stream).useDelimiter('\\A').next();
+        }
+        invokeNow(function() {
+          callback(rc, response);
+        });
+      });
+    };
+  setsigntext.js: |-
+    var utils = require('utils');
+    exports.setsigntext = function( x, y, z, text ) {
+      var world = server.worlds.get(0);
+      var block = world.getBlockAt(x,y,z);
+      var state = block.state;
+      if (state instanceof org.bukkit.block.Sign) {   
+          state.setLine(0, text);
+          state.update(true);
+      }
+    };
+  netcoreconf.js: |-
+    var utils = require('utils'),
+    signs = require('signs'),
+    http = require('http'),
+    jsResponse;
+
+    exports.time_sign = function( player ) {
+        var cartel = box(blocks.sign_post);
+        var cordx = cartel.x;
+        var cordy = cartel.y;
+        var cordz = cartel.z;
+        let i = 0;
+        while (i < 100) {
+            task(i);
+            i++;
+        }
+        function task(i) {
+            setTimeout(function() {
+                http.request('http://localhost:3500/v1.0/invoke/dapr-sensors-average/method/average/1',function(responseCode, responseBody){ jsResponse = JSON.stringify( responseBody ); });
+                setsigntext(cordx, cordy, cordz, jsResponse.temperature);
+            }, 2000 * i);
+        }
+    };
+kind: ConfigMap
+metadata:
+  name: setup-cm
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mc
+  template:
+    metadata:
+      labels:
+        app: mc
+        aadpodidbinding: dapr
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "mc"
+        dapr.io/config: "tracing"
+        # dapr.io/sidecar-liveness-probe-delay-seconds: "180"
+        # dapr.io/sidecar-readiness-probe-delay-seconds: "180"
+    spec:
+      initContainers:
+        - name: spigot-setup
+          image: busybox
+          command:
+            - sh
+            - -c
+          args:
+            - /setup/setup.sh
+          imagePullPolicy: "IfNotPresent"
+          volumeMounts:
+            - mountPath: /data/plugins
+              name: spigot-volume
+            - mountPath: /graalvm
+              name: java-volume
+            - mountPath: /mcrcon
+              name: rcon-volume
+            - mountPath: /setup
+              name: setup-volume
+      containers:
+        - name: mc
+          image: itzg/minecraft-server
+          ports:
+            - name: mc-port
+              containerPort: 25565
+          imagePullPolicy: "IfNotPresent"
+          env:
+            - name: EULA
+              value: "TRUE"
+            - name: JVM_DD_OPTS
+              value: "polyglot.js.nashorn-compat=true"
+            - name: ONLINE_MODE
+              value: "TRUE"
+            - name: ENABLE_RCON
+              value: "TRUE"
+            - name: RCON_PASSWORD
+              value: "rcon231418."
+            - name: OPS
+              value: "cmendibl3,lordvanmanu,vicky"
+            - name: SPAWN_MONSTERS
+              value: "FALSE"
+            - name: TYPE
+              value: "SPIGOT"
+            - name: VERSION
+              value: "1.17.1"
+            - name: PATH
+              value: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/graalvm/graalvm-ce-java16-21.2.0/bin"
+            - name: JAVA_HOME
+              value: "/graalvm/graalvm-ce-java16-21.2.0"
+            - name: MODE
+              value: "creative"
+          volumeMounts:
+            - mountPath: /data/plugins
+              name: spigot-volume
+            - mountPath: /graalvm
+              name: java-volume
+            - mountPath: /mcrcon
+              name: rcon-volume
+            - mountPath: /data
+              name: data-volume
+            - mountPath: /setup
+              name: setup-volume
+        - name: spigot-ops-fix
+          image: ubuntu
+          command:
+            - sh
+            - -c
+          args:
+            - /setup/ops-fix.sh
+          imagePullPolicy: "IfNotPresent"
+          volumeMounts:
+            - mountPath: /mcrcon
+              name: rcon-volume
+            - mountPath: /data
+              name: data-volume
+            - mountPath: /setup
+              name: setup-volume
+      volumes:
+        - name: spigot-volume
+          emptyDir: {}
+        - name: java-volume
+          emptyDir: {}
+        - name: rcon-volume
+          emptyDir: {}
+        - name: data-volume
+          persistentVolumeClaim:
+            claimName: azure-managed-disk
+        - name: setup-volume
+          configMap:
+            name: setup-cm
+            defaultMode: 0777
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: azure-managed-disk
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: managed-premium
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mc
+spec:
+  type: LoadBalancer
+  ports:
+    - name: mc-port
+      port: 25565
+  selector:
+    app: mc

@@ -1,0 +1,98 @@
+---
+# Worker Application
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dapr-sensors-actors
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dapr-sensors-actors
+  template:
+    metadata:
+      labels:
+        app: dapr-sensors-actors
+        aadpodidbinding: dapr
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "dapr-sensors-actors"
+        dapr.io/app-port: "80"
+        dapr.io/config: "tracing"
+    spec:
+      containers:
+        - name: dapr-sensors-actors
+          image: cmendibl3/dapr.sensors.actors
+          ports:
+            - name: http
+              containerPort: 80
+          imagePullPolicy: "Always"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dapr-sensors-actors
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 80
+  selector:
+    app: dapr-sensors-actors
+
+---
+# Worker Application
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dapr-sensors-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dapr-sensors-client
+  template:
+    metadata:
+      labels:
+        app: dapr-sensors-client
+        aadpodidbinding: dapr
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "dapr-sensors-client"
+        dapr.io/config: "tracing"
+    spec:
+      containers:
+        - name: dapr-sensors-client
+          image: cmendibl3/dapr.sensors.client
+          imagePullPolicy: "Always"
+
+---
+# Worker Application
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dapr-sensors-average
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dapr-sensors-average
+  template:
+    metadata:
+      labels:
+        app: dapr-sensors-average
+        aadpodidbinding: dapr
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "dapr-sensors-average"
+        dapr.io/app-port: "80"
+        dapr.io/config: "tracing"
+    spec:
+      containers:
+        - name: dapr-sensors-average
+          image: cmendibl3/dapr.sensors.average
+          ports:
+            - name: http
+              containerPort: 80
+          imagePullPolicy: "Always"
