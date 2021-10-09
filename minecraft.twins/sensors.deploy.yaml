@@ -66,6 +66,10 @@ spec:
         - name: dapr-sensors-client
           image: cmendibl3/dapr.sensors.client
           imagePullPolicy: "Always"
+          command:
+            - sh
+            - -c
+            - "sleep 10 && dotnet dapr.sensors.client.dll"
 
 ---
 # Worker Application

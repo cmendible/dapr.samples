@@ -17,6 +17,4 @@ RUN dotnet publish -c release
 # Final stage / image
 FROM mcr.microsoft.com/dotnet/aspnet:5.0
 COPY --from=build /src/dapr.sensors.client/bin/release/net5.0/publish ./
-COPY ./dapr.sensors.client/start.sh ./start.sh
-
-ENTRYPOINT ["./start.sh"]
+ENTRYPOINT ["dotnet", "dapr.sensors.client.dll"]
