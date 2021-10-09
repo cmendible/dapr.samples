@@ -125,12 +125,15 @@ data:
     };
   setsigntext.js: |-
     var utils = require('utils');
-    exports.setsigntext = function( x, y, z, text ) {
+    exports.setsigntext = function( x, y, z, temp, energy ) {
       var world = server.worlds.get(0);
       var block = world.getBlockAt(x,y,z);
       var state = block.state;
       if (state instanceof org.bukkit.block.Sign) {   
-          state.setLine(0, text);
+          state.setLine(0, "Temperature:");
+          state.setLine(1, temp);
+          state.setLine(2, "E. Generator:");
+          state.setLine(3, energy);
           state.update(true);
       }
     };
@@ -139,7 +142,7 @@ data:
     signs = require('signs'),
     http = require('http')
     
-    exports.time_sign = function( player ) {
+    exports.windturbine_sign = function( player ) {
         var cartel = box(blocks.sign_post);
         var cordx = cartel.x;
         var cordy = cartel.y;
@@ -151,7 +154,7 @@ data:
         }
         function task(i) {
             setTimeout(function() {
-                http.request('http://localhost:3500/v1.0/invoke/dapr-sensors-average/method/average/1',function(responseCode, responseBody){ setsigntext(cordx, cordy, cordz, JSON.parse( responseBody ).temperature); });
+                http.request('http://localhost:3500/v1.0/invoke/dapr-sensors-average/method/average/1',function(responseCode, responseBody){ setsigntext(cordx, cordy, cordz, JSON.parse( responseBody ).temperature, JSON.parse( responseBody ).energy); });
             }, 2000 * i);
         }
     };
