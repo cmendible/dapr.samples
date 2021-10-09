@@ -19,5 +19,6 @@ kubectl apply -f ./deploy/config/tracing.yaml
 kubectl apply -f ./sensors.deploy.yaml
 
 
+---
 
-
+nova give WIND_TURBINE
