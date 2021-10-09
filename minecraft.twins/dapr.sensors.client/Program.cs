@@ -21,6 +21,7 @@ namespace Dapr.Sensors.Client
                 {
                     SensorId = "1",
                     Temperature = random.NextDouble() * (60 - 10) + 10,
+                    Energy = random.NextDouble() * (10 - 1) + 1,
                     Timestamp = DateTime.UtcNow
                 };
 

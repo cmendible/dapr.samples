@@ -95,7 +95,8 @@ namespace Dapr.Sensors.Actors
                 {
                     SensorId = sensorData.First().SensorId,
                     Timestamp = DateTime.UtcNow,
-                    Temperature = sensorData.Select(data => data.Temperature).Average()
+                    Temperature = sensorData.Select(data => data.Temperature).Average(),
+                    Energy = sensorData.Select(data => data.Energy).Average()
                 };
 
                 await daprClient.PublishEventAsync("messagebus", "temperature", averageDeviceData);

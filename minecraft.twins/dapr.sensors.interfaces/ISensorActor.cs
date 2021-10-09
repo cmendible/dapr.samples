@@ -17,9 +17,6 @@
 
         public double Temperature { get; set; }
 
-        public override string ToString()
-        {
-            return $"{Timestamp:o} Temperature from sensor {SensorId}: ${Temperature}";
-        }
+        public double Energy { get; set; }
     }
 }
