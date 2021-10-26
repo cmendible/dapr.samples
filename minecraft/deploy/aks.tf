@@ -33,14 +33,14 @@ resource "azurerm_kubernetes_cluster" "k8s" {
     }
   } 
   
-  provisioner "local-exec" {
-    command = "./install.sh"
+  # provisioner "local-exec" {
+  #   command = "./install.sh"
 
-    environment = {
-      AKS_NAME = var.cluster_name
-      AKS_RG   = var.resource_group_name
-    }
-  }
+  #   environment = {
+  #     AKS_NAME = var.cluster_name
+  #     AKS_RG   = var.resource_group_name
+  #   }
+  # }
 }
 
 data "azurerm_resource_group" "node_resource_group" {
