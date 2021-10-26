@@ -38,7 +38,7 @@ kind: Service
 metadata:
   name: minecraft-bot
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   ports:
     - name: viewer
       port: 8181
