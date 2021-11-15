@@ -23,6 +23,6 @@ spec:
         key: accessSecret
         name: accessSecret
     - name: query
-      value: "roblox" # your search query, required
+      value: "LaPalma" # your search query, required
 auth:
   secretStore: secrets
