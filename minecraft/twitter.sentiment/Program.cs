@@ -1,44 +1,68 @@
-using Dapr.Client;
-using Dapr.Extensions.Configuration;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using Dapr.Client;
+using System.Text.Json;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
+using System.IO;
+using Microsoft.Azure.CognitiveServices.Language.TextAnalytics;
+using Microsoft.Azure.CognitiveServices.Language.LUIS.Authoring;
+using Dapr.Extensions.Configuration;
+using System;
 
-namespace twitter.sentiment
+var client = new DaprClientBuilder()
+    .Build();
+
+var config = new ConfigurationBuilder()
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json")
+    .AddEnvironmentVariables()
+    .AddDaprSecretStore("secrets", client)
+    .Build();
+
+WebHost.CreateDefaultBuilder().
+ConfigureServices(s =>
 {
-    public class Program
+    s.AddSingleton<DaprClient>(client);
+    s.AddSingleton(new JsonSerializerOptions()
     {
-        public static void Main(string[] args)
-        {
-            CreateHostBuilder(args).Build().Run();
-        }
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        PropertyNameCaseInsensitive = true,
+    });
+})
+.UseConfiguration(config)
+.Configure(app =>
+{
+    app.UseRouting();
+    app.UseCloudEvents();
+    app.UseEndpoints(e =>
+    {
+        e.MapSubscribeHandler();
+        e.MapPost("/sentiment", Sentiment);
+    });
+    
+}).Build().Run();
 
-        /// <summary>
-        /// Creates WebHost Builder.
-        /// </summary>
-        /// <param name="args">Arguments.</param>
-        /// <returns>Returns IHostbuilder.</returns>
-        public static IHostBuilder CreateHostBuilder(string[] args)
-        {
-            // Create Dapr Client
-            var client = new DaprClientBuilder()
-                .Build();
+async Task Sentiment(HttpContext context)
+{
+    var configuration = context.RequestServices.GetRequiredService<IConfiguration>();
+    var serializerOptions = context.RequestServices.GetRequiredService<JsonSerializerOptions>();
 
-            return Host.CreateDefaultBuilder(args)
-                .ConfigureServices((services) =>
-                {
-                    // Add the DaprClient to DI.
-                    services.AddSingleton<DaprClient>(client);
-                })
-                .ConfigureAppConfiguration((configBuilder) =>
-                {
-                    // Add the secret store Configuration Provider to the configuration builder.
-                    configBuilder.AddDaprSecretStore("secrets", client);
-                })
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
-        }
-    }
+    var credentials = new ApiKeyServiceClientCredentials(configuration["cognitiveServicesKey"]);
+    var textAnalyticsClient = new TextAnalyticsClient(credentials)
+    {
+        Endpoint = "https://westeurope.api.cognitive.microsoft.com/"
+    };
+
+    var content = await new StreamReader(context.Request.Body).ReadToEndAsync();
+
+    var result = await textAnalyticsClient.SentimentAsync(content);
+    Console.WriteLine($"Sentiment Score: {result.Score:0.00}");
+
+    context.Response.ContentType = "application/json";
+    await JsonSerializer.SerializeAsync(context.Response.Body, result.Score, serializerOptions);
 }
